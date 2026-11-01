@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Livre d'Or</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; background: #000000; color: white; min-height: 100vh; padding: 20px; margin: 0; box-sizing: border-box; }
+        h1 { color: #38bdf8; }
+        input, textarea { width: 80%; max-width: 300px; padding: 10px; font-size: 16px; border-radius: 5px; border: none; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; font-family: sans-serif; }
+        textarea { height: 80px; resize: none; }
+        button { padding: 10px 20px; font-size: 16px; border-radius: 5px; border: none; background: #22c55e; color: white; font-weight: bold; cursor: pointer; }
+        .btn-danger { background: #ef4444; margin-top: 20px; }
+        .btn-search { background: #38bdf8; }
+        .btn-login { background: #64748b; font-size: 14px; padding: 5px 10px; margin-bottom: 20px; text-decoration: none; color: white; border-radius: 5px; display: inline-block; }
+        ul { list-style-type: none; padding: 0; font-size: 16px; }
+        li { background: #1e293b; margin: 10px auto; padding: 15px; border-radius: 8px; max-width: 320px; text-align: left; position: relative; }
+        .header-msg { display: flex; align-items: center; margin-bottom: 10px; }
+        .avatar { width: 35px; height: 35px; background-color: #6366f1; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; margin-right: 10px; text-transform: uppercase; }
+        .nom-titre { color: #38bdf8; font-weight: bold; font-size: 18px; }
+        .message-texte { color: #cbd5e1; font-style: italic; word-wrap: break-word; display: block; margin-bottom: 10px; }
+        .date-texte { color: #64748b; font-size: 12px; display: block; text-align: right; }
+        .actions { position: absolute; top: 10px; right: 10px; font-size: 18px; }
+        .actions a { text-decoration: none; margin-left: 10px; }
+        .like-btn { transition: transform 0.2s; color: #f472b6; text-decoration: none; font-size: 16px; display: inline-block; margin-top: 5px; font-weight: bold; }
+        .like-btn:hover { transform: scale(1.3); }
+    </style>
+</head>
+<body>
+    <h1>📖 Mon Livre d'Or</h1>
+    
+    {% if session.get('admin') %}
+        <a href="/logout" class="btn-login">🔒 Déconnexion Admin</a>
+    {% else %}
+        <a href="/login" class="btn-login">🔑 Connexion Admin</a>
+    {% endif %}
+
+    <p style="color: #94a3b8;">Laissez un message sur mon serveur !</p>
+    
+    <form method="POST">
+        <input type="text" name="nom" placeholder="Ton prénom" required>
+        <textarea name="message" placeholder="Ton message..." required></textarea>
+        <button type="submit">Publier</button>
+    </form>
+
+    <h2 style="color: #22c55e; margin-top: 40px;">Les messages :</h2>
+    
+    <form method="GET" style="margin-bottom: 20px;">
+        <input type="text" name="search" placeholder="Rechercher..." value="{{ recherche }}">
+        <button type="submit" class="btn-search">🔍 Chercher</button>
+    </form>
+
+    <ul>
+        {% for v in visiteurs %}
+            <li>
+                {% if session.get('admin') %}
+                <div class="actions">
+                    <a href="/edit/{{ v[0] }}">✏️</a>
+                    <a href="/delete/{{ v[0] }}">❌</a>
+                </div>
+                {% endif %}
+                <div class="header-msg">
+                    <div class="avatar">{{ v[1][0] }}</div> 
+                    <span class="nom-titre">{{ v[1] }}</span>
+                </div>
+                <span class="message-texte">"{{ v[2] }}"</span>
+                <span class="date-texte">Le {{ v[3] }}</span>
+                <a href="/like/{{ v[0] }}" class="like-btn">❤️ {{ v[4] }}</a>
+            </li>
+        {% else %}
+            <li style="text-align: center; color: #94a3b8;">Aucun message trouvé.</li>
+        {% endfor %}
+    </ul>
+
+    {% if visiteurs and session.get('admin') %}
+    <form method="POST" action="/clear">
+        <button type="submit" class="btn-danger">Effacer tout 🗑️</button>
+    </form>
+    {% endif %}
+</body>
+</html>
