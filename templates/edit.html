@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier le message</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; background: #000000; color: white; min-height: 100vh; padding: 20px; margin: 0; box-sizing: border-box; }
+        h1 { color: #38bdf8; }
+        input, textarea { width: 80%; max-width: 300px; padding: 10px; font-size: 16px; border-radius: 5px; border: none; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; font-family: sans-serif; }
+        textarea { height: 80px; resize: none; }
+        button { padding: 10px 20px; font-size: 16px; border-radius: 5px; border: none; background: #22c55e; color: white; font-weight: bold; cursor: pointer; }
+        .btn-cancel { background: #64748b; text-decoration: none; padding: 10px 20px; border-radius: 5px; color: white; font-weight: bold; display: inline-block; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>✏️ Modifier le message</h1>
+    
+    <form action="/update/{{ visiteur[0] }}" method="POST">
+        <input type="text" name="nom" value="{{ visiteur[1] }}" required>
+        <textarea name="message" required>{{ visiteur[2] }}</textarea>
+        <button type="submit">Sauvegarder ✅</button>
+    </form>
+    
+    <br>
+    <a href="/" class="btn-cancel">Annuler</a>
+</body>
+</html>
