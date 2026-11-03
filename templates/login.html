@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Admin</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; background: #000000; color: white; min-height: 100vh; padding-top: 50px; margin: 0; }
+        h1 { color: #38bdf8; }
+        input { padding: 10px; font-size: 16px; border-radius: 5px; border: none; margin-bottom: 10px; display: block; margin: 0 auto 10px auto; width: 80%; max-width: 300px; }
+        button { padding: 10px 20px; font-size: 16px; border-radius: 5px; border: none; background: #38bdf8; color: white; font-weight: bold; cursor: pointer; }
+        .erreur { color: #ef4444; margin-bottom: 10px; }
+        a { color: #22c55e; text-decoration: none; display: block; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔑 Connexion Admin</h1>
+    {% if erreur %}
+        <p class="erreur">{{ erreur }}</p>
+    {% endif %}
+    <form method="POST">
+        <input type="password" name="password" placeholder="Mot de passe (admin123)" required>
+        <button type="submit">Se connecter</button>
+    </form>
+    <a href="/">⬅ Retour à l'accueil</a>
+</body>
+</html>
