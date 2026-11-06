@@ -18,13 +18,15 @@ def home():
     try:
         conn = get_db()
         cur = conn.cursor()
+        # Ajout de la colonne 'photo' dans la table
         cur.execute('''
             CREATE TABLE IF NOT EXISTS visiteurs (
                 id SERIAL PRIMARY KEY,
                 nom TEXT,
                 message TEXT,
                 date TEXT,
-                likes INTEGER DEFAULT 0
+                likes INTEGER DEFAULT 0,
+                photo TEXT
             )
         ''')
         conn.commit()
@@ -32,18 +34,21 @@ def home():
         if request.method == 'POST':
             nom = request.form.get('nom')
             message = request.form.get('message')
+            photo = request.form.get('photo') # Récupération du lien de la photo
             if nom and message:
                 date_actuelle = datetime.now().strftime("%d/%m/%Y à %H:%M")
-                cur.execute('INSERT INTO visiteurs (nom, message, date) VALUES (%s, %s, %s)', (nom, message, date_actuelle))
+                cur.execute('INSERT INTO visiteurs (nom, message, date, photo) VALUES (%s, %s, %s, %s)', (nom, message, date_actuelle, photo))
                 conn.commit()
                 return redirect(url_for('home'))
 
         recherche = request.args.get('search', '')
         if recherche:
-            cur.execute('SELECT id, nom, message, date, likes FROM visiteurs WHERE nom ILIKE %s OR message ILIKE %s ORDER BY likes DESC', 
+            # Ajout de 'photo' dans la requête SELECT
+            cur.execute('SELECT id, nom, message, date, likes, photo FROM visiteurs WHERE nom ILIKE %s OR message ILIKE %s ORDER BY likes DESC', 
                         ('%' + recherche + '%', '%' + recherche + '%'))
         else:
-            cur.execute('SELECT id, nom, message, date, likes FROM visiteurs ORDER BY likes DESC')
+            # Ajout de 'photo' dans la requête SELECT
+            cur.execute('SELECT id, nom, message, date, likes, photo FROM visiteurs ORDER BY likes DESC')
         
         rows = cur.fetchall()
         cur.close()
@@ -52,7 +57,7 @@ def home():
         return render_template('index.html', visiteurs=rows, recherche=recherche)
         
     except Exception as e:
-        # Si ça plante, on affiche l'erreur en rouge
+        # Affiche l'erreur en rouge si la connexion échoue
         return f"<div style='background:#000; color:red; padding:20px; font-family:sans-serif;'><h1>Erreur de connexion :</h1><p style='background:#333; padding:10px;'>{e}</p></div>"
 
 @app.route('/login', methods=['GET', 'POST'])
