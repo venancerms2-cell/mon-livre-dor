@@ -22,6 +22,8 @@
         
         .header-msg { display: flex; align-items: center; margin-bottom: 10px; }
         .avatar { width: 35px; height: 35px; background-color: #6366f1; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; margin-right: 10px; text-transform: uppercase; }
+        .photo-profil { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; margin-right: 10px; border: 2px solid #38bdf8; }
+        
         .nom-titre { color: #38bdf8; font-weight: bold; font-size: 18px; }
         .message-texte { color: #cbd5e1; font-style: italic; word-wrap: break-word; display: block; margin-bottom: 10px; }
         .date-texte { color: #64748b; font-size: 12px; display: block; text-align: right; }
@@ -50,6 +52,7 @@
     
     <form method="POST">
         <input type="text" name="nom" placeholder="Ton prénom" required>
+        <input type="text" name="photo" placeholder="Lien de ta photo (optionnel)">
         <textarea name="message" placeholder="Ton message..." required></textarea>
         <button type="submit">Publier</button>
     </form>
@@ -72,7 +75,12 @@
                 {% endif %}
                 
                 <div class="header-msg">
-                    <div class="avatar">{{ v[1][0] }}</div> 
+                    <!-- Si la photo existe (v[5]), on l'affiche, sinon on affiche l'avatar avec l'initiale -->
+                    {% if v[5] %}
+                        <img src="{{ v[5] }}" alt="Photo" class="photo-profil">
+                    {% else %}
+                        <div class="avatar">{{ v[1][0] }}</div>
+                    {% endif %}
                     <span class="nom-titre">{{ v[1] }}</span>
                 </div>
                 
