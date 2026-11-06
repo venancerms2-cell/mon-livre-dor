@@ -4,14 +4,13 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-# On récupère la clé secrète depuis Render
 app.secret_key = os.environ.get('SECRET_KEY', 'un_super_secret_par_defaut')
-# On récupère le mot de passe admin depuis Render
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123') 
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 
 def get_db():
     db_url = os.environ.get('DATABASE_URL')
-    conn = psycopg2.connect(db_url, sslmode='require')
+    # On attend jusqu'à 30 secondes que Neon se réveille
+    conn = psycopg2.connect(db_url, sslmode='require', connect_timeout=30)
     return conn
 
 @app.route('/', methods=['GET', 'POST'])
@@ -53,15 +52,14 @@ def home():
         return render_template('index.html', visiteurs=rows, recherche=recherche)
         
     except Exception as e:
-        # On n'affiche plus l'erreur en clair, on affiche un message propre
-        return render_template('index.html', visiteurs=[], erreur="Une erreur est survenue. Veuillez réessayer plus tard.")
+        # Si ça plante, on affiche l'erreur en rouge
+        return f"<div style='background:#000; color:red; padding:20px; font-family:sans-serif;'><h1>Erreur de connexion :</h1><p style='background:#333; padding:10px;'>{e}</p></div>"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     erreur = None
     if request.method == 'POST':
-        # On utilise la variable ADMIN_PASSWORD
-        if request.form.get('password') == ADMIN_PASSWORD: 
+        if request.form.get('password') == ADMIN_PASSWORD:
             session['admin'] = True
             return redirect(url_for('home'))
         else:
