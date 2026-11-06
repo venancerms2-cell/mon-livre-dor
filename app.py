@@ -4,7 +4,10 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
+# On récupère la clé secrète depuis Render
 app.secret_key = os.environ.get('SECRET_KEY', 'un_super_secret_par_defaut')
+# On récupère le mot de passe admin depuis Render
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123') 
 
 def get_db():
     db_url = os.environ.get('DATABASE_URL')
@@ -50,13 +53,15 @@ def home():
         return render_template('index.html', visiteurs=rows, recherche=recherche)
         
     except Exception as e:
-        return f"<div style='background:#000; color:red; padding:20px; font-family:sans-serif;'><h1>Erreur de connexion :</h1><p style='background:#333; padding:10px; border-radius:5px;'>{e}</p></div>"
+        # On n'affiche plus l'erreur en clair, on affiche un message propre
+        return render_template('index.html', visiteurs=[], erreur="Une erreur est survenue. Veuillez réessayer plus tard.")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     erreur = None
     if request.method == 'POST':
-        if request.form.get('password') == 'admin123':
+        # On utilise la variable ADMIN_PASSWORD
+        if request.form.get('password') == ADMIN_PASSWORD: 
             session['admin'] = True
             return redirect(url_for('home'))
         else:
