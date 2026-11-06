@@ -9,7 +9,6 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 
 def get_db():
     db_url = os.environ.get('DATABASE_URL')
-    # On attend jusqu'à 30 secondes que Neon se réveille
     conn = psycopg2.connect(db_url, sslmode='require', connect_timeout=30)
     return conn
 
@@ -18,7 +17,8 @@ def home():
     try:
         conn = get_db()
         cur = conn.cursor()
-        # Ajout de la colonne 'photo' dans la table
+        
+        # 1. Création de la table si elle n'existe pas
         cur.execute('''
             CREATE TABLE IF NOT EXISTS visiteurs (
                 id SERIAL PRIMARY KEY,
@@ -29,12 +29,15 @@ def home():
                 photo TEXT
             )
         ''')
+        
+        # 2. LA LIGNE MAGIQUE : On ajoute la colonne si elle manque
+        cur.execute('ALTER TABLE visiteurs ADD COLUMN IF NOT EXISTS photo TEXT;')
         conn.commit()
         
         if request.method == 'POST':
             nom = request.form.get('nom')
             message = request.form.get('message')
-            photo = request.form.get('photo') # Récupération du lien de la photo
+            photo = request.form.get('photo')
             if nom and message:
                 date_actuelle = datetime.now().strftime("%d/%m/%Y à %H:%M")
                 cur.execute('INSERT INTO visiteurs (nom, message, date, photo) VALUES (%s, %s, %s, %s)', (nom, message, date_actuelle, photo))
@@ -43,11 +46,9 @@ def home():
 
         recherche = request.args.get('search', '')
         if recherche:
-            # Ajout de 'photo' dans la requête SELECT
             cur.execute('SELECT id, nom, message, date, likes, photo FROM visiteurs WHERE nom ILIKE %s OR message ILIKE %s ORDER BY likes DESC', 
                         ('%' + recherche + '%', '%' + recherche + '%'))
         else:
-            # Ajout de 'photo' dans la requête SELECT
             cur.execute('SELECT id, nom, message, date, likes, photo FROM visiteurs ORDER BY likes DESC')
         
         rows = cur.fetchall()
@@ -57,7 +58,6 @@ def home():
         return render_template('index.html', visiteurs=rows, recherche=recherche)
         
     except Exception as e:
-        # Affiche l'erreur en rouge si la connexion échoue
         return f"<div style='background:#000; color:red; padding:20px; font-family:sans-serif;'><h1>Erreur de connexion :</h1><p style='background:#333; padding:10px;'>{e}</p></div>"
 
 @app.route('/login', methods=['GET', 'POST'])
